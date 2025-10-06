@@ -1,133 +1,90 @@
-PDF-RAG: A Local Question-Answering System
-This project is a complete Retrieval-Augmented Generation (RAG) pipeline that allows you to ask questions about a PDF document using free, locally-run AI models. The system extracts text from a PDF, processes it, creates a searchable vector database, and then uses a local language model to answer questions based on the document's content.
+Chat with PDF - A Local RAG Pipeline with Ollama
+This project provides a complete, local-first RAG (Retrieval-Augmented Generation) pipeline that allows you to chat with your PDF documents. It uses Tesseract for OCR, LangChain for orchestration, and Ollama to run open-source models for embeddings and chat, ensuring your data remains private and the process is entirely free.
 
 Features
-PDF Text Extraction: Uses Tesseract-OCR to accurately extract text from PDF files.
+PDF to Text: Extracts text from PDF documents using OCR (pytesseract).
 
-Text Cleaning: A dedicated Python script cleans and formats the raw OCR output using regular expressions to make it suitable for an AI model.
+Text Cleaning: A robust script (text_process.py) cleans and prepares the extracted text for the RAG model.
 
-Local Vector Database: Uses Chroma DB to store and retrieve information locally, without needing a cloud service.
+Local & Free: Uses Ollama to run powerful open-source models like nomic-embed-text and phi3 on your own machine. No API keys or costs.
 
-Free, Local AI Models: Powered by Ollama, this project uses open-source models for embeddings and chat, so there are no API costs.
+Vector Database: Stores document embeddings in a local Chroma vector database for fast retrieval.
 
-Command-Line Interface: Ask questions and get answers directly from your terminal.
+Question & Answer: A command-line interface (query.py) lets you ask questions about the document's content.
 
 Project Structure
-text_process.py: A script that handles the initial OCR extraction of raw text from a PDF.
+RAG01/
+│
+├── 📄 .env # (Optional) For storing API keys if you switch models.
+├── 📄 .gitignore # Specifies files for Git to ignore.
+├── 📄 requirements.txt # Lists all the necessary Python packages.
+├── 📁 data/ # Place your raw PDF documents here.
+│ └── modern_history.pdf
+├── 📁 main_data/ # Stores the cleaned text file.
+│ └── cleaned_text.txt
+├── 📁 chroma/ # The local Chroma vector database will be stored here.
+├── 🐍 text_process.py # Script to perform OCR and clean the text from the PDF.
+├── 🐍 create_db.py # Script to create the vector database from the cleaned text.
+└── 🐍 query.py # Script to ask questions to your document.
 
-clean_text.py: A script that takes the raw text and performs a comprehensive cleaning process.
+Setup Instructions
+Follow these steps to set up the project environment.
 
-create_db.py: A script that takes the cleaned text, splits it into chunks, and builds a Chroma vector database.
+1. Install System Dependencies
+   Python (Version 3.11 recommended): Make sure you have Python installed. You can download it from python.org.
 
-query.py: The main query engine. Run this script with a question to get an answer from your document.
+Tesseract OCR Engine: This is required for extracting text from the PDF. Download and install it from the official Tesseract at UB Mannheim page.
 
-requirements.txt: A list of all the necessary Python packages for the project.
+Important: During installation, remember the path where it's installed (e.g., C:\Program Files\Tesseract-OCR).
 
-.env: A file to store secret keys (though not required for the Ollama setup, it's included for good practice).
+Ollama: This application runs the local AI models. Download and install it from ollama.com.
 
-Prerequisites
-Before you begin, you must have the following software installed on your system:
+2. Set Up the Python Environment
+   Clone the Repository (or use your local folder).
 
-Python (Version 3.11 is recommended): Make sure it's added to your system's PATH.
+Create and Activate a Virtual Environment: Open your terminal in the project folder and run:
 
-Tesseract-OCR Engine: This is required for the text extraction script.
-
-Download the installer from the Tesseract at UB Mannheim page.
-
-During installation, take note of the installation path (e.g., C:\Program Files\Tesseract-OCR\tesseract.exe).
-
-Ollama: This application runs the local AI models.
-
-Download and install it from the Ollama official website.
-
-Setup and Installation
-Follow these steps to set up the project environment:
-
-Clone the Repository (or download the files):
-
-git clone [https://your-repo-url.com/](https://your-repo-url.com/)
-cd RAG01
-
-Create a Virtual Environment:
-It's crucial to use a virtual environment to manage dependencies.
+# Create the environment
 
 py -3.11 -m venv venv
 
-Activate the Virtual Environment:
-You must activate the environment every time you work on the project.
+# Activate the environment (on Windows)
 
 .\venv\Scripts\activate
 
-Install Python Dependencies:
-Install all the required Python packages from the requirements.txt file.
+Install Python Packages: Install all the required libraries at once.
 
 pip install -r requirements.txt
 
-Download Ollama Models:
-Important: You must have the Ollama application running for this step. Open your terminal and pull the necessary models.
+3. Download the AI Models
+   After installing Ollama, you must download the models it will use. Make sure the Ollama application is running before you run these commands in your terminal.
 
-# For creating embeddings
+# Download the embedding model
 
 ollama pull nomic-embed-text
 
-# For answering questions (choose one based on your computer's memory)
+# Download the chat model
 
-ollama pull tinyllama # Fastest, lowest quality, for low-memory systems
-ollama pull phi3 # Good balance of speed and quality
+ollama pull phi3
 
-Place Your PDF:
-Put the PDF file you want to process (e.g., my_document.pdf) into the project's root directory.
+Usage: A 3-Step Process
+Run these scripts from your terminal in order. Make sure your virtual environment is activated.
 
-Usage
-Run the scripts in the following order:
-
-1. Extract Text from PDF
-   This script performs the initial OCR extraction.
-
-Configure: Open text_process.py and ensure the paths are set correctly.
-
-Run:
+Step 1: Process the PDF
+This script reads the PDF from the data folder, extracts the text using OCR, cleans it, and saves the result in the main_data folder.
 
 python text_process.py
 
-Output: This will create a raw text file (e.g., extract_text.txt).
-
-2. Clean the Extracted Text
-   This script cleans the raw text file using regular expressions.
-
-Configure: Open clean_text.py and ensure the input and output file paths are correct.
-
-Run:
-
-python clean_text.py
-
-Output: This will create a cleaned text file (e.g., cleaned_text.txt) in the main_data folder.
-
-3. Create the Vector Database
-   This script creates the searchable Chroma database from the cleaned text.
-
-Run:
+Step 2: Create the Database
+This script takes the cleaned text, creates vector embeddings for it using the local nomic-embed-text model, and saves them into the chroma database folder.
 
 python create_db.py
 
-Output: This will create a chroma folder containing the vector database.
-
-4. Ask a Question
-   This is the final step. Run the query script from your terminal, followed by your question in quotes.
-
-Important: Make sure the Ollama application is running in the background.
-
-Run:
+Step 3: Ask a Question
+Now you can chat with your document. Run this script with your question in quotes.
 
 python query.py "Your question about the document goes here"
 
 Example:
 
-python query.py "What were the main causes of World War I?"
-
-Troubleshooting
-'ollama' is not recognized...: This means Ollama is not installed or your terminal needs to be restarted after installation.
-
-model requires more system memory...: The model you've chosen is too large for your computer's available RAM. Try using a smaller model (like tinyllama) or closing other applications.
-
-OllamaEndpointNotFoundError or status code 404: This means the Ollama application is not running on your computer. Make sure it's running in the background before you run the query script.
+python query.py "Summarize the differences between Spanish and British colonization in the Americas."
