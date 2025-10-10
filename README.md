@@ -1,90 +1,125 @@
-Chat with PDF - A Local RAG Pipeline with Ollama
-This project provides a complete, local-first RAG (Retrieval-Augmented Generation) pipeline that allows you to chat with your PDF documents. It uses Tesseract for OCR, LangChain for orchestration, and Ollama to run open-source models for embeddings and chat, ensuring your data remains private and the process is entirely free.
+# Chat with PDF — Local RAG using Ollama
 
-Features
-PDF to Text: Extracts text from PDF documents using OCR (pytesseract).
+A small local Retrieval-Augmented Generation (RAG) demo that lets you chat with a PDF document. This repository provides tools to extract and clean text, build embeddings, persist a Chroma vector database, and query it via a backend or a small React frontend.
 
-Text Cleaning: A robust script (text_process.py) cleans and prepares the extracted text for the RAG model.
+IMPORTANT: Ollama must be installed and running on the machine you use to run this project. Ollama runs local models (for example `nomic-embed-text` for embeddings). See https://ollama.com for install instructions and downloads.
 
-Local & Free: Uses Ollama to run powerful open-source models like nomic-embed-text and phi3 on your own machine. No API keys or costs.
+## Project overview
 
-Vector Database: Stores document embeddings in a local Chroma vector database for fast retrieval.
+- OCR & text extraction: `Backend/text_process.py` (uses Tesseract via `pytesseract`).
+- Text cleaning: `Backend/text_process.py` outputs cleaned text in `Backend/main_data/cleaned_text.txt`.
+- Build vector DB: `Backend/create_db.py` — creates embeddings and a Chroma DB in `Backend/chroma/`.
+- Querying: `Backend/query.py` provides a small script to query the DB. The front-end in `Frontend/` talks to the backend during development.
 
-Question & Answer: A command-line interface (query.py) lets you ask questions about the document's content.
+## Quick setup (Windows PowerShell)
 
-Project Structure
-RAG01/
-│
-├── 📄 .env # (Optional) For storing API keys if you switch models.
-├── 📄 .gitignore # Specifies files for Git to ignore.
-├── 📄 requirements.txt # Lists all the necessary Python packages.
-├── 📁 data/ # Place your raw PDF documents here.
-│ └── modern_history.pdf
-├── 📁 main_data/ # Stores the cleaned text file.
-│ └── cleaned_text.txt
-├── 📁 chroma/ # The local Chroma vector database will be stored here.
-├── 🐍 text_process.py # Script to perform OCR and clean the text from the PDF.
-├── 🐍 create_db.py # Script to create the vector database from the cleaned text.
-└── 🐍 query.py # Script to ask questions to your document.
+These steps assume Windows PowerShell; adapt the commands for macOS / Linux as needed.
 
-Setup Instructions
-Follow these steps to set up the project environment.
+1. Clone the repository and open the project folder
 
-1. Install System Dependencies
-   Python (Version 3.11 recommended): Make sure you have Python installed. You can download it from python.org.
+```powershell
+git clone <your-repo-url>
+cd <repo-folder>
+```
 
-Tesseract OCR Engine: This is required for extracting text from the PDF. Download and install it from the official Tesseract at UB Mannheim page.
+2. Create and activate a Python virtual environment
 
-Important: During installation, remember the path where it's installed (e.g., C:\Program Files\Tesseract-OCR).
-
-Ollama: This application runs the local AI models. Download and install it from ollama.com.
-
-2. Set Up the Python Environment
-   Clone the Repository (or use your local folder).
-
-Create and Activate a Virtual Environment: Open your terminal in the project folder and run:
-
-# Create the environment
-
+```powershell
 py -3.11 -m venv venv
-
-# Activate the environment (on Windows)
-
 .\venv\Scripts\activate
+```
 
-Install Python Packages: Install all the required libraries at once.
+3. Install Python dependencies
 
+```powershell
+cd Backend
 pip install -r requirements.txt
+```
 
-3. Download the AI Models
-   After installing Ollama, you must download the models it will use. Make sure the Ollama application is running before you run these commands in your terminal.
+If you plan to run the React frontend locally, open a separate terminal and:
 
-# Download the embedding model
+```powershell
+cd Frontend
+npm install
+```
 
+4. Install required system tools
+
+- Tesseract OCR (Windows): install and add to PATH — e.g. https://github.com/UB-Mannheim/tesseract/wiki
+- Ollama: install and run the Ollama daemon locally. Confirm with `ollama ls` and `ollama pull`.
+
+5. Pull the Ollama models used by this project
+
+```powershell
+# Example models (adjust as needed):
 ollama pull nomic-embed-text
-
-# Download the chat model
-
 ollama pull phi3
+```
 
-Usage: A 3-Step Process
-Run these scripts from your terminal in order. Make sure your virtual environment is activated.
+> Note: `create_db.py` expects Ollama to be running and models available when using the local embedding path.
 
-Step 1: Process the PDF
-This script reads the PDF from the data folder, extracts the text using OCR, cleans it, and saves the result in the main_data folder.
+## Usage — end-to-end
 
-python text_process.py
+1. Extract and clean text from your PDFs
 
-Step 2: Create the Database
-This script takes the cleaned text, creates vector embeddings for it using the local nomic-embed-text model, and saves them into the chroma database folder.
+```powershell
+# Place PDFs under Backend/data
+cd Backend
+py text_process.py
+```
 
-python create_db.py
+2. Build embeddings and create the Chroma DB
 
-Step 3: Ask a Question
-Now you can chat with your document. Run this script with your question in quotes.
+```powershell
+# Ensure Ollama is running and models are pulled
+py create_db.py
+```
 
-python query.py "Your question about the document goes here"
+3. Run the backend and query
 
-Example:
+```powershell
+# Start the backend server (if applicable)
+py app.py
 
-python query.py "Summarize the differences between Spanish and British colonization in the Americas."
+# In another terminal, query the server or use the frontend
+py query.py "What are the main themes in chapter 3?"
+```
+
+## Frontend (optional)
+
+The repository includes a React + Vite frontend in `Frontend/`.
+
+```powershell
+cd Frontend
+npm run dev
+# Open the URL printed by Vite (usually http://localhost:5173)
+```
+
+## Troubleshooting
+
+- If you see errors about missing models or model availability, confirm Ollama is running and the model was pulled:
+
+```powershell
+ollama ls
+ollama pull nomic-embed-text
+```
+
+- If you prefer OpenAI (cloud) instead of Ollama/local models, set `OPENAI_API_KEY` in a `.env` file and use the OpenAI path in `create_db.py` — be mindful of billing and quota.
+- Keep `.env` out of source control. `.gitignore` excludes `.env` and the `chroma/` DB folder.
+
+## Advanced
+
+- To reduce embedding costs/time for development set the `MAX_CHUNKS` environment variable before running `create_db.py` to limit how many chunks are embedded during a test run.
+
+```powershell
+$env:MAX_CHUNKS="200"
+py create_db.py
+```
+
+## Contributing
+
+If you'd like improvements (screenshots, Dockerfile, GitHub Actions CI) or help adapting the project to different models, open an issue or a PR.
+
+---
+
+Maintainer

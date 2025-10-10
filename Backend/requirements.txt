@@ -12,3 +12,6 @@ tqsm #Utility for displaying progress bars in the terminal
 Pillow #Processes and manipulates images, used by pytesseract
 pytesseract #Performs Optical Character Recognition (OCR) on images
 PyMuPDF
+# Libraries for backend server
+Flask==3.0.0
+Flask-Cors==4.0.0
