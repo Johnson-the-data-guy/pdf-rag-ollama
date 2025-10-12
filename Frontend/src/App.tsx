@@ -69,21 +69,24 @@ function Sidebar({ isOpen, onClose, onTopicClick }: SidebarProps) {
     "Limits to Growth and the Future",
   ];
 
-  if (!isOpen) return null;
-
   return (
     <>
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className={`fixed inset-0 backdrop-blur-sm z-40 transition-all duration-300 ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
         onClick={onClose}
       />
-      <div className="fixed top-0 left-0 h-full w-72 bg-[#2D2D2D] text-white z-50 transform transition-transform duration-300 ease-in-out translate-x-0">
+      <div
+        className={`fixed top-0 left-0 h-full w-72 bg-[#2D2D2D] text-white z-50 transform transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="p-5 flex justify-between items-center border-b border-[#3A3A3A]">
           <h2 className="text-lg font-semibold">Document Overview</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-[#3A3A3A] transition-colors"
-            type="button"
+            className="p-1 rounded-full hover:bg-[#3A3A3A] cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -100,8 +103,7 @@ function Sidebar({ isOpen, onClose, onTopicClick }: SidebarProps) {
                     onTopicClick(`Summarize the chapter on: ${topic}`);
                     onClose();
                   }}
-                  className="text-left w-full text-gray-300 hover:text-blue-400 hover:underline p-2 rounded-md transition-colors"
-                  type="button"
+                  className="text-left w-full text-gray-300 hover:text-blue-400 hover:underline p-2 rounded-md transition-colors cursor-pointer"
                 >
                   {topic}
                 </button>
@@ -116,7 +118,7 @@ function Sidebar({ isOpen, onClose, onTopicClick }: SidebarProps) {
               href="https://github.com/Johnson-the-data-guy"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-gray-300 hover:text-white"
             >
               <Github size={20} />
               GitHub
@@ -125,7 +127,7 @@ function Sidebar({ isOpen, onClose, onTopicClick }: SidebarProps) {
               href="https://www.linkedin.com/in/johnson-the-data-guy/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-gray-300 hover:text-white"
             >
               <Linkedin size={20} />
               LinkedIn
@@ -136,6 +138,8 @@ function Sidebar({ isOpen, onClose, onTopicClick }: SidebarProps) {
     </>
   );
 }
+
+// --- Main App Component ---
 
 interface Message {
   id: string;
@@ -149,6 +153,7 @@ export default function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -160,6 +165,10 @@ export default function App() {
 
   const handleTopicClick = (topic: string) => {
     setInputValue(topic);
+    setTimeout(() => {
+      inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -218,8 +227,7 @@ export default function App() {
       <header className="flex-shrink-0 border-b border-[#2D2D2D] py-4 px-6 flex items-center justify-between">
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="p-2 rounded-full hover:bg-[#2D2D2D] transition-colors"
-          type="button"
+          className="p-2 rounded-full hover:bg-[#2D2D2D] cursor-pointer"
         >
           <Menu className="text-white" />
         </button>
@@ -229,12 +237,12 @@ export default function App() {
         <div className="w-8"></div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-hide">
         <div className="max-w-3xl mx-auto">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-4">
               <div className="mb-8">
-                <h2 className="text-white mb-3 text-2xl font-semibold">
+                <h2 className="text-white mb-3">
                   Chat with Modern World History
                 </h2>
                 <p className="text-gray-400">
@@ -263,17 +271,18 @@ export default function App() {
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
+              ref={inputRef}
               type="text"
               placeholder="Ask a question..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               disabled={isTyping}
-              className="flex-1 bg-[#2D2D2D] border border-[#3A3A3A] text-white placeholder:text-gray-500 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-[#007AFF] disabled:opacity-50"
+              className="flex-1 bg-[#2D2D2D] border-[#3A3A3A] text-white placeholder:text-gray-500 rounded-full px-5 py-3 focus-visible:ring-[#007AFF] focus-visible:ring-2 focus-visible:ring-offset-0 disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
-              className="rounded-full w-12 h-12 p-0 bg-[#007AFF] hover:bg-[#0066DD] disabled:bg-[#2D2D2D] disabled:text-gray-600 flex items-center justify-center transition-colors"
+              className="rounded-full w-12 h-12 p-0 bg-[#007AFF] hover:bg-[#0066DD] disabled:bg-[#2D2D2D] disabled:text-gray-600 flex items-center justify-center"
             >
               <Send className="w-5 h-5" />
             </button>
