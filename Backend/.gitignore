@@ -1,8 +1,0 @@
-
-venv/
-.env
-chroma/
-__pycache__/
-
-
-data/modern_history.pdf

@@ -1,0 +1,10 @@
+python-dotenv
+docling
+langchain
+langchain-community
+langchain-google-genai
+langchain-text-splitters
+chromadb
+fastapi 
+uvicorn
+

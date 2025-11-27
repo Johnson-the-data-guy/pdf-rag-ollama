@@ -1,0 +1,56 @@
+# ===========================
+# 🔐 Security & Keys (CRITICAL)
+# ===========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===========================
+# 🐍 Python / Backend
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# ===========================
+# ⚛️ Node.js / Frontend
+# ===========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# ===========================
+# 📚 RAG Databases & Cache
+# ===========================
+
+chroma/
+chroma_db/
+
+
+# Processing Caches
+docling_extract.json
+
+# ===========================
+# 📂 Large Data Files
+# ===========================
+*.pdf
+data/
+main_data/
+
+# ===========================
+# 🖥️ System & IDE Settings
+# ===========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
