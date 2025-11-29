@@ -49,7 +49,7 @@ function ChatMessage({ message, isUser }: ChatMessageProps) {
                 <li className="leading-relaxed">{children}</li>
               ),
               strong: ({ children }) => (
-                <span className="font-bold text-blue-300">{children}</span>
+                <span className="font-bold text-purple-300">{children}</span>
               ),
               h1: ({ children }) => (
                 <h1 className="text-xl font-bold mb-2 mt-4">{children}</h1>
@@ -243,7 +243,7 @@ export default function App() {
 
   // Session ID for Stateful Backend
   const [sessionId] = useState(
-    () => "session_" + Math.random().toString(36).substr(2, 9)
+    () => "session_" + Math.random().toString(36).slice(2, 11)
   );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
